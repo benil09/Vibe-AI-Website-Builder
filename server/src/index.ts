@@ -2,26 +2,30 @@ import express from "express";
 import cors from "cors";
 import { PORT } from "./config/env";
 import apiRouter from "./routes/api";
+import healthRouter from "./routes/health";
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// CORS config
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
-// Health check route
-app.get("/health", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Server is healthy",
-    timestamp: new Date().toISOString(),
-  });
-});
+// Body parsing middleware
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// API Routes
+// Routes
+app.use("/health", healthRouter);
 app.use("/api", apiRouter);
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
