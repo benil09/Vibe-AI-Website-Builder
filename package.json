@@ -1,0 +1,10 @@
+{
+  "name": "vibe",
+  "private": true,
+  "scripts": {
+    "dev":"npm run dev -w server"  
+  },
+  "workspaces": [
+    "server"
+  ]
+}

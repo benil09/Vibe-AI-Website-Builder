@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MessageRole {
+  user
+  assistant
+}
+
+enum MessageType {
+  result
+  error
+}
+
+model Project {
+  id        String    @id @default(cuid())
+  name      String?
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Message   Message[]
+
+  @@index([userId])
+
+  @@map("project")
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  role      MessageRole
+  type      MessageType
+  content   String?
+  projectId String
+  project   Project     @relation(fields:[projectId], references:[id])
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Fragment  Fragment?
+
+  @@index([projectId])
+  @@map("message")
+}
+
+model Fragment {
+  id         String   @id @default(cuid())
+  messageId  String   @unique
+  message    Message  @relation(fields:[messageId], references:[id])
+  sandboxUrl String
+  files      Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("fragment")
+}
