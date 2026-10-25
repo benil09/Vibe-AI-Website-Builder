@@ -1,5 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -24,10 +25,9 @@ model Project {
   userId    String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  Message   Message[]
+  messages  Message[]
 
   @@index([userId])
-
   @@map("project")
 }
 
@@ -37,10 +37,10 @@ model Message {
   type      MessageType
   content   String?
   projectId String
-  project   Project     @relation(fields:[projectId], references:[id])
+  project   Project     @relation(fields: [projectId], references: [id])
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-  Fragment  Fragment?
+  fragment  Fragment?
 
   @@index([projectId])
   @@map("message")
@@ -49,7 +49,7 @@ model Message {
 model Fragment {
   id         String   @id @default(cuid())
   messageId  String   @unique
-  message    Message  @relation(fields:[messageId], references:[id])
+  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
   sandboxUrl String
   files      Json
   createdAt  DateTime @default(now())
