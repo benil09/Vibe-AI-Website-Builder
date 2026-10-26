@@ -5,6 +5,12 @@ export interface ProjectFilterOptions {
   userId?: string;
 }
 
+export interface CreateProjectRepoInput {
+  name: string;
+  userId: string;
+  messageContent: string;
+}
+
 /**
  * Fetch all projects, optionally filtered by userId, ordered by last updated.
  */
@@ -42,6 +48,47 @@ export const findProjectById = async (id: string, userId?: string) => {
           fragment: true,
         },
       },
+    },
+  });
+};
+
+/**
+ * Create a new project with an initial user message atomically.
+ */
+export const createProject = async (data: CreateProjectRepoInput) => {
+  return prisma.project.create({
+    data: {
+      name: data.name,
+      userId: data.userId,
+      messages: {
+        create: {
+          role: "user",
+          type: "result",
+          content: data.messageContent,
+        },
+      },
+    },
+    include: {
+      messages: {
+        include: {
+          fragment: true,
+        },
+      },
+    },
+  });
+};
+
+/**
+ * Fetch all messages for a specific project ID, ordered chronologically.
+ */
+export const findMessagesByProjectId = async (projectId: string) => {
+  return prisma.message.findMany({
+    where: { projectId },
+    orderBy: {
+      createdAt: "asc",
+    },
+    include: {
+      fragment: true,
     },
   });
 };
