@@ -25,7 +25,12 @@ export const validate = (validators: RequestValidators) => {
           });
         });
       } else {
-        req.params = result.data as Record<string, string>;
+        Object.defineProperty(req, "params", {
+          value: result.data,
+          writable: true,
+          configurable: true,
+          enumerable: true,
+        });
       }
     }
 
@@ -40,7 +45,12 @@ export const validate = (validators: RequestValidators) => {
           });
         });
       } else {
-        req.query = result.data as any;
+        Object.defineProperty(req, "query", {
+          value: result.data,
+          writable: true,
+          configurable: true,
+          enumerable: true,
+        });
       }
     }
 
