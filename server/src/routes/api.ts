@@ -1,7 +1,10 @@
 import { Router } from "express";
 
+import projectRouter from "./project.route";
+
 const router = Router();
 
-// Add your API routes here
+// Project routes
+router.use("/projects", projectRouter);
 
 export default router;
