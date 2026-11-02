@@ -21,11 +21,15 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Routes
+app.get("/",(_req,res)=>{
+   res.status(200).json({message:"Everything is fine"})
+})
 app.use("/health", healthRouter);
 app.use("/api", apiRouter);
 
 // Start server
 app.listen(PORT, () => {
+  
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 
