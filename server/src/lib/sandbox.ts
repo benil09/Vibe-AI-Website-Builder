@@ -1,6 +1,8 @@
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import path from "node:path";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { sandboxRoot, SKIP_DIRS, SKIP_FILES, MAX_TRCKED_BYTE_SIZE } from "../config/constants";
 
 export type fileCollection = Record<string, string>;
@@ -105,8 +107,7 @@ export const ensureSandboxSync = (sandbox: string): string => {
 };
 
 
-export async function readSandboxTree(sandboxId: string): Promise<fileCollection> {
-  const root = path.join(sandboxRoot, sandboxId);
+export async function readSandboxTree(sandboxId: string): Promise<fileCollection> {  const root = path.join(sandboxRoot, sandboxId);
   const files: fileCollection = {};
 
   const walk = async (curr: string) => {
@@ -145,4 +146,36 @@ export async function readSandboxTree(sandboxId: string): Promise<fileCollection
 
   return files;
 }
+
+const execAsync = promisify(exec);
+
+const COMMAND_TIMEOUT_MS = 60_000;
+const COMMAND_MAX_OUTPUT_BYTES = 1024 * 1024; // 1 MB
+
+// -> runs a shell command inside the sandbox dir; never throws — returns stdout on success, descriptive error string on failure
+export const runSandboxCommand = async (
+  sandboxId: string,
+  command: string
+): Promise<string> => {
+  const sandboxDir = await ensureSandbox(sandboxId);
+
+  try {
+    const { stdout, stderr } = await execAsync(command, {
+      cwd: sandboxDir,
+      timeout: COMMAND_TIMEOUT_MS,
+      maxBuffer: COMMAND_MAX_OUTPUT_BYTES,
+    });
+
+    return stdout.trim() || stderr.trim();
+  } catch (err) {
+    const e = err as NodeJS.ErrnoException & { stdout?: string; stderr?: string };
+    const parts = [
+      `[error] ${e.message}`,
+      e.stdout?.trim() && `[stdout] ${e.stdout.trim()}`,
+      e.stderr?.trim() && `[stderr] ${e.stderr.trim()}`,
+    ].filter(Boolean);
+
+    return parts.join("\n");
+  }
+};
 
