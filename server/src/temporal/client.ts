@@ -1,7 +1,7 @@
 import { Connection, Client, WorkflowHandle } from "@temporalio/client";
 import { TEMPORAL_ADDRESS, TEMPORAL_TASK_QUEUE } from "../config/env";
 import { retryWithBackoff } from "../utils/retry";
-import { pingWorkflow } from "./workflow";
+import { pingWorkflow, codeAgentWorkflow, CodeAgentInput } from "./workflow";
 
 let clientInstance: Client | null = null;
 
@@ -32,6 +32,19 @@ export async function startPing(name: string = "World"): Promise<WorkflowHandle<
     taskQueue: TEMPORAL_TASK_QUEUE,
     workflowId: `ping-${Date.now()}`,
     args: [name],
+  });
+}
+
+// -> starts a codeAgentWorkflow for a project and returns the workflow handle
+export async function startCodeAgentWorkflow(
+  input: CodeAgentInput
+): Promise<WorkflowHandle<typeof codeAgentWorkflow>> {
+  const client = await connect();
+
+  return client.workflow.start(codeAgentWorkflow, {
+    taskQueue: TEMPORAL_TASK_QUEUE,
+    workflowId: `code-agent-${input.projectId}-${Date.now()}`,
+    args: [input],
   });
 }
 
