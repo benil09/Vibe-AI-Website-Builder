@@ -13,5 +13,10 @@
   },
   "workspaces": [
     "server"
-  ]
+  ],
+  "dependencies": {
+    "add": "^2.0.9",
+    "git": "^0.1.5",
+    "protobufjs": "^8.8.1"
+  }
 }
