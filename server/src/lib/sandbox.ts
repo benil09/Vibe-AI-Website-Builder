@@ -107,7 +107,8 @@ export const ensureSandboxSync = (sandbox: string): string => {
 };
 
 
-export async function readSandboxTree(sandboxId: string): Promise<fileCollection> {  const root = path.join(sandboxRoot, sandboxId);
+export async function readSandboxTree(sandboxId: string): Promise<fileCollection> {
+  const root = path.join(sandboxRoot, sandboxId);
   const files: fileCollection = {};
 
   const walk = async (curr: string) => {
