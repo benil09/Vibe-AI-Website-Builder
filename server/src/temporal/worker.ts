@@ -1,6 +1,7 @@
 import { NativeConnection, Worker } from "@temporalio/worker";
 import { TEMPORAL_ADDRESS, TEMPORAL_TASK_QUEUE } from "../config/env";
 import { retryWithBackoff } from "../utils/retry";
+import * as activities from "./activities";
 
 // -> establishes and returns a NativeConnection to the Temporal server with retry backoff
 export async function connect(maxAttempts = 5): Promise<NativeConnection> {
@@ -10,7 +11,7 @@ export async function connect(maxAttempts = 5): Promise<NativeConnection> {
   );
 }
 
-// -> connects to Temporal, initializes the worker with workflows, and starts listening
+// -> connects to Temporal, initializes the worker with workflows and activities, and starts listening
 export async function main(): Promise<void> {
   const connection = await connect();
 
@@ -19,6 +20,7 @@ export async function main(): Promise<void> {
     namespace: "default",
     taskQueue: TEMPORAL_TASK_QUEUE,
     workflowsPath: require.resolve("./workflow"),
+    activities,
   });
 
   await worker.run();

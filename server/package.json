@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "dev:server": "tsx watch src/index.ts",
+    "dev:worker": "tsx watch src/temporal/worker.ts",
+    "dev:all": "concurrently -n server,worker -c blue,magenta \"npm run dev:server\" \"npm run dev:worker\"",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",

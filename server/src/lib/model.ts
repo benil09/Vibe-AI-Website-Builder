@@ -2,6 +2,7 @@ import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatOpenAI } from "@langchain/openai";
 import {
+  BUILDER_MODEL,
   GEMINI_API_KEY,
   OPENAI_API_KEY,
   OPENROUTER_API_KEY,
@@ -14,6 +15,17 @@ const thinkingBudgetByEffort: Record<string, number> = {
   medium: 8192,
   high: 24576,
 };
+
+// -> checks whether a valid provider key is configured in the environment
+export function hasLLM(): boolean {
+  return Boolean(
+    (GEMINI_API_KEY && GEMINI_API_KEY.trim().length > 0) ||
+    (OPENROUTER_API_KEY && OPENROUTER_API_KEY.trim().length > 0) ||
+    (OPENAI_API_KEY && OPENAI_API_KEY.trim().length > 0)
+  );
+}
+
+export const hasllm = hasLLM;
 
 // -> checks whether a model supports reasoning or thinking capabilities
 export function checkReasoningSupport(modelName: string): boolean {
@@ -62,7 +74,10 @@ export function geminiChatModel(modelName: string, reasoning: boolean = false): 
 export const geminichatmodel = geminiChatModel;
 
 // -> creates and returns a ChatOpenAI instance configured with or without reasoning
-export function openAIChatModel(modelName: string, reasoning: boolean = false): ChatOpenAI {
+export function openAIChatModel(
+  modelName: string = "google/gemini-2.5-flash",
+  reasoning: boolean = false
+): ChatOpenAI {
   const hasReasoningSupport = checkReasoningSupport(modelName);
   const enableReasoning = reasoning && hasReasoningSupport;
   const effort = REASONING_EFFORT || "medium";
@@ -73,6 +88,7 @@ export function openAIChatModel(modelName: string, reasoning: boolean = false): 
   return new ChatOpenAI({
     model: modelName,
     apiKey,
+    maxTokens: 4096,
     ...(isAvailableOpenRouter
       ? { configuration: { baseURL: "https://openrouter.ai/api/v1" } }
       : {}),
@@ -80,15 +96,14 @@ export function openAIChatModel(modelName: string, reasoning: boolean = false): 
   });
 }
 
-// export const openaichatmodel = openAIChatModel;
-
 // -> returns a chat model instance based on available API keys (Gemini by default if key exists, otherwise OpenAI)
-export function getChatModel(modelName: string, reasoning: boolean = false): BaseChatModel {
+export function getChatModel(
+  modelName: string = BUILDER_MODEL || "gemini-2.5-flash",
+  reasoning: boolean = false
+): BaseChatModel {
   if (GEMINI_API_KEY) {
     return geminiChatModel(modelName, reasoning);
   }
 
   return openAIChatModel(modelName, reasoning);
 }
-
-// export const getchatmodel = getChatModel;
