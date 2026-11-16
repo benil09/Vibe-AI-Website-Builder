@@ -6,8 +6,8 @@ import {
   findMessagesByProjectId,
 } from "../repositories/project.repository";
 import { LOCAL_USER_ID } from "../config/constants";
-import { fileCollection, writeSandboxFiles } from "../lib/sandbox";
-import { saveResult } from "../repositories/message.repository";
+import { fileCollection } from "../lib/sandbox";
+import { startCodeAgentWorkflow } from "../temporal/client";
 
 export const HELLO_WORLD_FILES: fileCollection = {
   "src/App.tsx": `export default function App() {
@@ -44,14 +44,9 @@ export const createNewProject = async (input: CreateProjectInput) => {
     messageContent: input.content,
   });
 
-  await writeSandboxFiles(project.id, HELLO_WORLD_FILES);
-  await saveResult({
+  await startCodeAgentWorkflow({
     projectId: project.id,
-    content: "Here is the hello world sandbox",
-    files: HELLO_WORLD_FILES,
-    sandboxUrl: `api/preview/${project.id}`,
-    isError: false
-
+    prompt: input.content
   });
 
   return project;
