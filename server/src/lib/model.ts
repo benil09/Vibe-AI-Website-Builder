@@ -16,7 +16,7 @@ const thinkingBudgetByEffort: Record<string, number> = {
   high: 24576,
 };
 
-// -> checks whether a valid provider key is configured in the environment
+// ! checks whether a valid provider key is configured in the environment
 export function hasLLM(): boolean {
   return Boolean(
     (GEMINI_API_KEY && GEMINI_API_KEY.trim().length > 0) ||
