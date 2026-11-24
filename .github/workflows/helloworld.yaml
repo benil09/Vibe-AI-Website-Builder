@@ -2,7 +2,7 @@ name: "hello world"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "*" ]
 
 jobs:
       hello-world:
@@ -10,3 +10,6 @@ jobs:
          steps:
           - name: echo "Hello ! Workflow triggered"
             run: echo "Hello ! Workflow triggered"
+
+          - name : print current date and time
+            run: date
