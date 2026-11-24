@@ -1,0 +1,12 @@
+name:"hello world"
+
+on:
+  push:
+    branches: [ "*" ]
+    
+    jobs:
+      hello-world:
+         runs-on: ubuntu-latest
+         steps:
+          - name: echo "Hello ! Workflow triggered"
+            run: echo "Hello ! Workflow triggered"

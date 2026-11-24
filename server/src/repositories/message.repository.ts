@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma";
 import type { Prisma } from "@prisma/client";
 import type { fileCollection } from "../lib/sandbox";
+import { formatPlanForAgent, parsePlanMessage } from "../lib/plan";
 
 export type FileCollection = fileCollection;
 
@@ -11,6 +12,13 @@ export interface SaveResultInput {
   files?: FileCollection;
   sandboxUrl?: string;
   isError?: boolean;
+}
+
+
+export function formatLoadedDbContent(content:any|null | undefined):string{
+  const todo = parsePlanMessage(content);
+  return todo ? formatPlanForAgent(todo) : String(content ?? "");
+  
 }
 
 // -> creates assistant message in db (with fragment if result, without fragment if isError) and returns it with fragment included
@@ -70,4 +78,24 @@ export async function saveResult(
     },
   });
 }
+
+// -> retrieves up to 5 messages for a projectId in descending order of creation
+export async function getRecentMessagesByProjectId(projectId: string) {
+  const messages = await prisma.message.findMany({
+    where: { projectId },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+  });
+
+
+  return messages.reverse().map((message) => ({
+    role: message.role,
+    content: formatLoadedDbContent(message.content),
+  }));
+}
+
+export const loadProjectMessages = getRecentMessagesByProjectId;
+
 
