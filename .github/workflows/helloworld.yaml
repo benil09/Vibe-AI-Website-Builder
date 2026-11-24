@@ -1,10 +1,10 @@
-name:"hello world"
+name: "hello world"
 
 on:
   push:
-    branches: [ "*" ]
-    
-    jobs:
+    branches: [ "main" ]
+
+jobs:
       hello-world:
          runs-on: ubuntu-latest
          steps:
